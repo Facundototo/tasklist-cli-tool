@@ -1,35 +1,29 @@
 #!/usr/bin/env node
 
-import { program } from 'commander';
+//mycli <add> <description>
+//mycli <update> <id_task>
+//mycli <delete> <id_task>
+//mycli <mark-in-progress> <id_task>
+//mycli <mark-done> <id_task>
+//mycli <list> [done,todo,in-progress]
 
-//im gonna use Zod for partial validation.
-//moongose to store the tasks.
+const args = process.argv.slice(2);     //i extract the first two because they are the paths.
 
-//Add
-program
-    .description('add a task')
-    .command('add <task_name>')
-    .action((task_name) => {
-        //Add to db mongoose
-        console.log(`Task "${task_name}" added!`);
-    })
+// -- help argument here. --
 
-//Update
-program
-    .description('update a task')
-    .command('update <id> <new_task_name>')
-    .action((id,new_task_name) => {
-        //Update task in db moongose
-    })
+if(args.length < 2 && (args[0] !== 'list')) console.log('syntax error, check "help"');
+else options();
 
-//Delete
-program
-    .description('delete a task')
-    .command('delete <id>')
-    .action((id) => {
-        //Delete task in db moongose
-    })
+function options(){
+    switch(args[0]){
+        case 'add':
+            //-- create a task in JSON file with id,description(which is args[1]),status,createdAt,updatedAt --
+            break;
+    }
+}
 
-// What left? --> marks and lists.
 
-program.parse(process.argv);
+
+
+
+
