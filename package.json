@@ -9,7 +9,6 @@
   "bin": {
     "task_cli": "./bin/index.js"
   },
-  "type": "module",
   "author": "Facundo Toto",
   "license": "ISC"
 }
