@@ -19,19 +19,23 @@ const args = process.argv.slice(2);     //i extract the first two because they a
 options();
 
 function options(){
+
+    let tasks = loadTasks();
+
     switch(args[0]){
         case 'add':
-            let tasks = loadTasks();
-
-            tasks.push({
+        
+            tasks.push({        //push the new task.
                 id: tasks.length+1,
-                description: args.splice(1).join(' '),
+                description: args.splice(1).join(' '),      //i extract the first argument, which in this case is 'add' and join the arguments that form the description.
                 status: 'todo',
-                createdAt: new Date().toLocaleString(),
+                createdAt: new Date().toLocaleString(),     // "20/12/2012, 03:00:00"
                 updatedAt: null
             })
 
-            saveTasks(tasks);
+            saveTasks(tasks);       //save the tasks back to the local JSON file.
+
+            console.log(`Task added successfully (ID: ${tasks.length+1})`);
 
             break;
     }
@@ -39,14 +43,22 @@ function options(){
 
 function loadTasks(){
     if(fs.existsSync(FILE_PATH)){
-        const data = fs.readFileSync(FILE_PATH,'utf8')
-        return JSON.parse(data);
+        try {
+            const data = fs.readFileSync(FILE_PATH,'utf8')
+            return JSON.parse(data);
+        } catch (error) {
+            console.error('Error loading the file: ',error)
+        }
     }
     return [];
 }
 
 function saveTasks(data){
-    fs.writeFileSync(FILE_PATH,JSON.stringify(data),'utf8');
+    try {
+        fs.writeFileSync(FILE_PATH,JSON.stringify(data),'utf8');
+    } catch (error) {
+        console.error('Error saving the file: ',error);
+    }
 }
 
 
