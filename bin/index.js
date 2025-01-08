@@ -61,7 +61,11 @@ function options(){
                 break;
             }
             
-            tasks[update_task_id].description = new_description;
+            tasks[update_task_id] = {
+                ...tasks[update_task_id],
+                description:new_description,
+                updatedAt: new Date().toLocaleString()      
+            }
             
             saveTasks(tasks);  
 
