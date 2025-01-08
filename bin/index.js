@@ -24,6 +24,7 @@ function options(){
     let tasks = loadTasks();
 
     switch(args[0]){
+
         case 'add':
 
             tasks.push({        //push the new task
@@ -42,38 +43,56 @@ function options(){
 
         case 'update':
 
-            let id_task = args[1];
-            if(isNaN(parseInt(id_task))){       //checks if the id_task is an integer number
-                console.error('syntax error: id must be an integer number');
-                break;
-            } 
 
-            let update_task_id = tasks.findIndex(task => task.id === Number(id_task));
-            if(update_task_id === -1){      //checks if the id_task exists in the tasks
-                console.error('error: id not found');
-                break;
-            } 
+            const task_index_update = validateIdTask(args[1],tasks);
+            if(!task_index_update) break;
 
             let new_description = args[2]; 
-
-            if(new_description === "") {        //checks if the new description is empty
+            if(new_description === "" || new_description === undefined) {        //checks if the new description is empty
                 console.error('error: description cannot be empty')
                 break;
             }
             
-            tasks[update_task_id] = {
-                ...tasks[update_task_id],
+            tasks[task_index_update] = {
+                ...tasks[task_index_update],
                 description:new_description,
                 updatedAt: new Date().toLocaleString()      
             }
             
             saveTasks(tasks);  
 
-            console.log(`Task updated successfully (ID: ${id_task}, description: ${new_description})`);
+            console.log(`Task updated successfully (ID: ${args[1]}, description: ${new_description})`);
 
+            break;
+
+        case 'delete':
+            const task_index_delete = validateIdTask(args[1],tasks);
+            if(!task_index_delete) break;
+
+            //delete task
             break;
     }
 }
+
+function validateIdTask(id_task,tasks){
+
+    if(isNaN(parseInt(id_task))){       //checks if the id_task is an integer number
+        console.error('syntax error: id must be an integer number');
+        return false;
+    } 
+
+    let task_index = tasks.findIndex(task => task.id === Number(id_task));
+    if(task_index === -1){      //checks if the id_task exists in the tasks
+        console.error('error: id not found');
+        return false;
+    } 
+
+    return task_index;
+}
+
+
+
+
 
 function loadTasks(){       //reads the file if exists or create a new one
     if(fs.existsSync(FILE_PATH)){
