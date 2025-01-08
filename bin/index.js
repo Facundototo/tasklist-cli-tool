@@ -25,10 +25,10 @@ function options(){
 
     switch(args[0]){
         case 'add':
-        
+
             tasks.push({        //push the new task
                 id: tasks.length+1,
-                description: args.splice(1).join(' '),      //i extract the first argument, which in this case is 'add' and join the arguments that form the description
+                description: args[1],     
                 status: 'todo',
                 createdAt: new Date().toLocaleString(),     // "20/12/2012, 03:00:00"
                 updatedAt: null
@@ -54,7 +54,8 @@ function options(){
                 break;
             } 
 
-            let new_description = args.splice(2).join(' ');
+            let new_description = args[2]; 
+
             if(new_description === "") {        //checks if the new description is empty
                 console.error('error: description cannot be empty')
                 break;
