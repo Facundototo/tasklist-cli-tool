@@ -3,18 +3,19 @@
 const fs = require('fs');
 const path = require('path');
 
-//mycli <add> <description>
-//mycli <update> <id_task>
-//mycli <delete> <id_task>
-//mycli <mark-in-progress> <id_task>
-//mycli <mark-done> <id_task>
-//mycli <list> [done,todo,in-progress]
+//task_cli <add> <description>
+//task_cli <update> <id_task> <description>
+//task_cli <delete> <id_task>
+//task_cli <mark-in-progress> <id_task>
+//task_cli <mark-done> <id_task>
+//task_cli <list> [done,todo,in-progress]
 
 const FILE_PATH = path.join(__dirname, 'tasks.json');;
 
-const args = process.argv.slice(2);     //i extract the first two because they are the paths.
+const args = process.argv.slice(2);     //i extract the first two because they are the paths
 
-// -- help argument here. --
+// -- help argument --
+// -- description min/max length --  
 
 options();
 
@@ -25,23 +26,51 @@ function options(){
     switch(args[0]){
         case 'add':
         
-            tasks.push({        //push the new task.
+            tasks.push({        //push the new task
                 id: tasks.length+1,
-                description: args.splice(1).join(' '),      //i extract the first argument, which in this case is 'add' and join the arguments that form the description.
+                description: args.splice(1).join(' '),      //i extract the first argument, which in this case is 'add' and join the arguments that form the description
                 status: 'todo',
                 createdAt: new Date().toLocaleString(),     // "20/12/2012, 03:00:00"
                 updatedAt: null
             })
 
-            saveTasks(tasks);       //save the tasks back to the local JSON file.
+            saveTasks(tasks);       
 
-            console.log(`Task added successfully (ID: ${tasks.length+1})`);
+            console.log(`Task added successfully (ID: ${tasks.length})`);
+
+            break;
+
+        case 'update':
+
+            let id_task = args[1];
+            if(isNaN(parseInt(id_task))){       //checks if the id_task is an integer number
+                console.error('syntax error: id must be an integer number');
+                break;
+            } 
+
+            let update_task_id = tasks.findIndex(task => task.id === Number(id_task));
+            if(update_task_id === -1){      //checks if the id_task exists in the tasks
+                console.error('error: id not found');
+                break;
+            } 
+
+            let new_description = args.splice(2).join(' ');
+            if(new_description === "") {        //checks if the new description is empty
+                console.error('error: description cannot be empty')
+                break;
+            }
+            
+            tasks[update_task_id].description = new_description;
+            
+            saveTasks(tasks);  
+
+            console.log(`Task updated successfully (ID: ${id_task}, description: ${new_description})`);
 
             break;
     }
 }
 
-function loadTasks(){
+function loadTasks(){       //reads the file if exists or create a new one
     if(fs.existsSync(FILE_PATH)){
         try {
             const data = fs.readFileSync(FILE_PATH,'utf8')
@@ -53,7 +82,7 @@ function loadTasks(){
     return [];
 }
 
-function saveTasks(data){
+function saveTasks(data){       //saves the tasks back to the local JSON file
     try {
         fs.writeFileSync(FILE_PATH,JSON.stringify(data),'utf8');
     } catch (error) {
