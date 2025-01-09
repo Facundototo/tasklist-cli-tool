@@ -10,7 +10,8 @@ const path = require('path');
 //task_cli <mark-done> <id_task>
 //task_cli <list> [done,todo,in-progress]
 
-const FILE_PATH = path.join(__dirname, 'tasks.json');
+const FILE_PATH_DATA = path.join(__dirname, 'tasks.json');
+const FILE_PATH_CACHE = path.join(__dirname, 'cache.json');
 
 const args = process.argv.slice(2);     //i extract the first two because they are the paths
 
@@ -65,12 +66,15 @@ function options(){
             break;
 
         case 'delete':
+
             const task_index_delete = validateIdTask(args[1],tasks);
             if(task_index_delete === -1) break;
 
-            tasks.splice(0,task_index_delete+1);        
-
-            saveData({nextId,tasks});  
+            const task_deleted = tasks.splice(0,task_index_delete+1)[0];       // delete action
+            
+            saveData({nextId,tasks});
+            console.log(`Task deleted successfully (ID: ${args[1]})`);
+            loadIntoCache({...task_deleted , deletedAt: new Date().toLocaleString()});      // i send the task_deleted object to the loadIntoCache() function and add a deletedAt variable to it
 
             break;
     }
@@ -95,27 +99,49 @@ function validateIdTask(id_task,tasks){
 
 function loadData(){       //reads the file if exists or create a new one
 
-    let data = {}
+    let parsed_data = [{}];
 
-    if(fs.existsSync(FILE_PATH)){
+    if(fs.existsSync(FILE_PATH_DATA)){
         try {
-            data = fs.readFileSync(FILE_PATH,'utf8')
+            parsed_data = JSON.parse(fs.readFileSync(FILE_PATH_DATA,'utf8'));
         } catch (error) {
-            console.error('Error loading the file: ',error)
+            console.error('Error loading the file: ',error);
         }
-    }
+    }else return {nextId:1,tasks:[]};
 
-    const parsed_data = JSON.parse(data);
     return (!parsed_data.tasks.length) ? {nextId:1,tasks:[]} : parsed_data;     //if there are no tasks, i reset the nextId variable
 
 }
 
 function saveData(data){       //saves the tasks back to the local JSON file
     try {
-        fs.writeFileSync(FILE_PATH,JSON.stringify(data),'utf8');
+        fs.writeFileSync(FILE_PATH_DATA,JSON.stringify(data),'utf8');
     } catch (error) {
         console.error('Error saving the file: ',error);
     }
+}
+
+function loadIntoCache(task_deleted) {        //cache deleted tasks
+
+    let cache = [];
+
+    if(fs.existsSync(FILE_PATH_CACHE)){
+        try {
+            cache = JSON.parse(fs.readFileSync(FILE_PATH_CACHE,'utf8'));
+        } catch (error) {
+            console.error('Error loading cache: ',error);
+        }
+    }
+
+    cache.push(task_deleted);
+
+    try {
+        fs.writeFileSync(FILE_PATH_CACHE,JSON.stringify(cache),'utf8');
+        console.log('task cached');
+    } catch (error) {
+        console.error('Error saving cache: ',error);
+    }
+    
 }
 
 
