@@ -94,15 +94,20 @@ function validateIdTask(id_task,tasks){
 
 
 function loadData(){       //reads the file if exists or create a new one
+
+    let data = {}
+
     if(fs.existsSync(FILE_PATH)){
         try {
-            const data = fs.readFileSync(FILE_PATH,'utf8')
-            return JSON.parse(data);
+            data = fs.readFileSync(FILE_PATH,'utf8')
         } catch (error) {
             console.error('Error loading the file: ',error)
         }
     }
-    return {nextId:1,tasks:[]};
+
+    const parsed_data = JSON.parse(data);
+    return (!parsed_data.tasks.length) ? {nextId:1,tasks:[]} : parsed_data;     //if there are no tasks, i reset the nextId variable
+
 }
 
 function saveData(data){       //saves the tasks back to the local JSON file
