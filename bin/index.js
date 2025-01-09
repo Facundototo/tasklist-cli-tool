@@ -77,6 +77,10 @@ function options(){
             loadIntoCache({...task_deleted , deletedAt: new Date().toLocaleString()});      // i send the task_deleted object to the loadIntoCache() function and add a deletedAt variable to it
 
             break;
+        
+        case 'clear-cache':
+            clearCache();
+            break;
     }
 }
 
@@ -142,6 +146,20 @@ function loadIntoCache(task_deleted) {        //cache deleted tasks
         console.error('Error saving cache: ',error);
     }
     
+}
+
+function clearCache(){      //clears cache
+
+    if(fs.existsSync(FILE_PATH_CACHE)){
+        try {
+            fs.writeFileSync(FILE_PATH_CACHE,"[]");
+            console.log('cache cleared');
+        } catch (error) {
+            console.error('Error loading cache: ',error);
+        }
+    }else{
+        console.log("you don't have a cache yet");
+    }
 }
 
 
