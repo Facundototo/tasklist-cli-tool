@@ -66,9 +66,11 @@ function options(){
 
         case 'delete':
             const task_index_delete = validateIdTask(args[1],tasks);
-            if(!task_index_delete) break;
+            if(task_index_delete === -1) break;
 
+            tasks.splice(0,task_index_delete+1);        
 
+            saveData({nextId,tasks});  
 
             break;
     }
