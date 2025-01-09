@@ -77,9 +77,21 @@ function options(){
             loadIntoCache({...task_deleted , deletedAt: new Date().toLocaleString()});      // i send the task_deleted object to the loadIntoCache() function and add a deletedAt variable to it
 
             break;
+
+        case 'mark-in-progress':
+            markTask(args[1],'in-progress',nextId,tasks);
+            break;
+
+        case 'mark-done':
+            markTask(args[1],'done',nextId,tasks);
+            break;
         
         case 'clear-cache':
             clearCache();
+            break;
+
+        default:
+            console.log('That argument does not exist, (check help)');
             break;
     }
 }
@@ -124,6 +136,15 @@ function saveData(data){       //saves the tasks back to the local JSON file
         console.error('Error saving the file: ',error);
     }
 }
+
+function markTask(id_task,new_status,nextId,tasks){     // reuse function in mark-in-progress and mark-done arguments
+    const index = validateIdTask(id_task,tasks);
+    if(index !== -1){
+        tasks[index].status = new_status;
+        saveData({nextId,tasks});
+        console.log(`Task marked successfully (ID:${id_task} status:${new_status})`);
+    }
+} 
 
 function loadIntoCache(task_deleted) {        //cache deleted tasks
 
