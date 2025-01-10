@@ -3,20 +3,13 @@
 const fs = require('fs');
 const path = require('path');
 
-//task_cli <add> <description>
-//task_cli <update> <id_task> <description>
-//task_cli <delete> <id_task>
-//task_cli <mark-in-progress> <id_task>
-//task_cli <mark-done> <id_task>
-//task_cli <list> [done,todo,in-progress]
 
+//paths to local JSON files
 const FILE_PATH_DATA = path.join(__dirname, 'tasks.json');
 const FILE_PATH_CACHE = path.join(__dirname, 'cache.json');
 
-const args = process.argv.slice(2);     //i extract the first two because they are the paths
-
-// -- help argument --
-// -- description min/max length --  
+//i extract the first two because they are the paths
+const args = process.argv.slice(2);     
 
 options();
 
@@ -26,13 +19,15 @@ function options(){
 
     switch(args[0]){
 
+        //use case task_cli <add> <description>
         case 'add':
 
-            tasks.push({        //push the new task
+            //push the new task
+            tasks.push({        
                 id: nextId++,
                 description: args[1],     
                 status: 'todo',
-                createdAt: new Date().toLocaleString(),     // "20/12/2012, 03:00:00"
+                createdAt: new Date().toLocaleString(),     // "20/12/2012, 03:00:00" 
                 updatedAt: null
             })
 
@@ -42,13 +37,16 @@ function options(){
 
             break;
 
+        //use casetask_cli <update> <id_task> <description>
         case 'update':
 
             const task_index_update = validateIdTask(args[1],tasks);
             if(task_index_update === -1) break;      
 
             let new_description = args[2]; 
-            if(new_description === "" || new_description === undefined) {        //checks if the new description is empty
+
+            //checks if the new description is empty
+            if(new_description === "" || new_description === undefined) {        
                 console.error('error: description cannot be empty')
                 break;
             }
@@ -65,27 +63,46 @@ function options(){
 
             break;
 
+        //use case task_cli <delete> <id_task>
         case 'delete':
 
             const task_index_delete = validateIdTask(args[1],tasks);
             if(task_index_delete === -1) break;
 
-            const task_deleted = tasks.splice(0,task_index_delete+1)[0];       // delete action
+            // delete action
+            const task_deleted = tasks.splice(0,task_index_delete+1)[0];       
             
             saveData({nextId,tasks});
             console.log(`Task deleted successfully (ID: ${args[1]})`);
-            loadIntoCache({...task_deleted , deletedAt: new Date().toLocaleString()});      // i send the task_deleted object to the loadIntoCache() function and add a deletedAt variable to it
+            //i send the task_deleted object to the loadIntoCache() function and add a deletedAt variable to it
+            loadIntoCache({...task_deleted , deletedAt: new Date().toLocaleString()});     
 
             break;
 
+        //use case task_cli <mark-in-progress> <id_task>
         case 'mark-in-progress':
             markTask(args[1],'in-progress',nextId,tasks);
             break;
 
+        //use case task_cli <mark-done> <id_task>
         case 'mark-done':
             markTask(args[1],'done',nextId,tasks);
             break;
-        
+
+        //use case task_cli <list> [done,todo,in-progress]
+        case 'list':
+            if(!args[1]) {      
+                printTasks(tasks);
+            }else {                                                                                 
+                if(args[1] !== 'done' || args[1] !== 'in-progress' || args[1] !== 'todo'){
+                    console.log(`'${args[1]}' does not exist as a status`);
+                } 
+                const tasks_filtered = tasks.filter(task => task.status === args[1]);
+                printTasks(tasks_filtered);
+            }
+            break;
+
+        //use case task_cli <clear-cache>
         case 'clear-cache':
             clearCache();
             break;
@@ -96,15 +113,23 @@ function options(){
     }
 }
 
+function printTasks(tasks){
+    tasks.forEach(task => {
+        console.log(`- ${task.id} -> ${task.description} // ${task.status} // created at ${task.createdAt} ${(task.updatedAt)?`and last update was at ${task.updatedAt}`:''} <-`);
+    })
+}
+
 function validateIdTask(id_task,tasks){
 
-    if(isNaN(parseInt(id_task))){       //checks if the id_task is an integer number
+    //checks if the id_task is an integer number
+    if(isNaN(parseInt(id_task))){       
         console.error('syntax error: id must be an integer number');
         return -1;
     } 
 
     let task_index = tasks.findIndex(task => task.id === Number(id_task));
-    if(task_index === -1){      //checks if the id_task exists in the tasks
+    //checks if the id_task exists in the tasks
+    if(task_index === -1){      
         console.error('error: id not found');
         return -1;
     } 
@@ -112,8 +137,8 @@ function validateIdTask(id_task,tasks){
     return task_index;
 }
 
-
-function loadData(){       //reads the file if exists or create a new one
+//reads the file if exists or create a new one
+function loadData(){       
 
     let parsed_data = [{}];
 
@@ -125,11 +150,13 @@ function loadData(){       //reads the file if exists or create a new one
         }
     }else return {nextId:1,tasks:[]};
 
-    return (!parsed_data.tasks.length) ? {nextId:1,tasks:[]} : parsed_data;     //if there are no tasks, i reset the nextId variable
+    //if there are no tasks, i reset the nextId variable
+    return (!parsed_data.tasks.length) ? {nextId:1,tasks:[]} : parsed_data;     
 
 }
 
-function saveData(data){       //saves the tasks back to the local JSON file
+//saves the tasks back to the local JSON file
+function saveData(data){       
     try {
         fs.writeFileSync(FILE_PATH_DATA,JSON.stringify(data),'utf8');
     } catch (error) {
@@ -137,7 +164,8 @@ function saveData(data){       //saves the tasks back to the local JSON file
     }
 }
 
-function markTask(id_task,new_status,nextId,tasks){     // reuse function in mark-in-progress and mark-done arguments
+// reuse function in mark-in-progress and mark-done arguments
+function markTask(id_task,new_status,nextId,tasks){     
     const index = validateIdTask(id_task,tasks);
     if(index !== -1){
         tasks[index].status = new_status;
@@ -146,7 +174,8 @@ function markTask(id_task,new_status,nextId,tasks){     // reuse function in mar
     }
 } 
 
-function loadIntoCache(task_deleted) {        //cache deleted tasks
+//cache deleted tasks
+function loadIntoCache(task_deleted) {        
 
     let cache = [];
 
@@ -169,7 +198,8 @@ function loadIntoCache(task_deleted) {        //cache deleted tasks
     
 }
 
-function clearCache(){      //clears cache
+//clears cache
+function clearCache(){      
 
     if(fs.existsSync(FILE_PATH_CACHE)){
         try {
