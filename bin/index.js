@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const { loadData,saveData,loadIntoCache,clearCache } = require('../src/lib/files.js');
-const { printTasks,markTask } = require('../src/commands/commands.js');
+const { printTasks,markTask,printHelp } = require('../src/commands/commands.js');
 const { validateIdTask } = require('../src/utils/utils.js');
 
 //i extract the first two because they are the paths
@@ -98,6 +98,10 @@ switch(args[0]){
     //use case task_cli <clear-cache>
     case 'clear-cache':
         clearCache();
+        break;
+        
+    case 'help':
+        printHelp();
         break;
 
     default:
