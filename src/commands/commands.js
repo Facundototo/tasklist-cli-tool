@@ -14,4 +14,15 @@ function markTask(id_task,new_status,nextId,tasks){
     }
 } 
 
-module.exports = {printTasks,markTask};
+function printHelp(){
+    console.log('arguments :');
+    console.log('- add <description>  // add a task');
+    console.log('- update <id_task> <description>  // update a task');
+    console.log('- delete <id_task>  // delete a task');
+    console.log('- mark-in-progress <id_task>  // mark status done');
+    console.log('- mark-done <id_task>  // mark status in-progress');
+    console.log('- list [done,todo,in-progress]  // list tasks');
+    console.log('- clear-cache  // clears the cache of deleted tasks');
+}
+
+module.exports = {printTasks,markTask,printHelp};
